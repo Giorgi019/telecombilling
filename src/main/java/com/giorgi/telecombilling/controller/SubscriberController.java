@@ -1,7 +1,9 @@
 package com.giorgi.telecombilling.controller;
 
+import com.giorgi.telecombilling.dto.InvoiceResponse;
 import com.giorgi.telecombilling.dto.SubscriberRequest;
 import com.giorgi.telecombilling.dto.SubscriberResponse;
+import com.giorgi.telecombilling.service.InvoiceService;
 import com.giorgi.telecombilling.service.SubscriberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.List;
 public class SubscriberController {
 
     private final SubscriberService subscriberService;
+    private final InvoiceService invoiceService;
 
     @PostMapping
     public ResponseEntity <SubscriberResponse> createSubscriber(@Valid @RequestBody SubscriberRequest request) {
@@ -29,6 +32,12 @@ public class SubscriberController {
     public ResponseEntity <List<SubscriberResponse>> getAllSubscribers() {
         List <SubscriberResponse> response = subscriberService.findAllSubscribers();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/invoices")
+    public ResponseEntity<List<InvoiceResponse>> getInvoices(@PathVariable Long id){
+        List<InvoiceResponse> response = invoiceService.getInvoicesBySubscriberId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/{id}")

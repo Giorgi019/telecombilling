@@ -2,6 +2,7 @@ package com.giorgi.telecombilling.service;
 
 import com.giorgi.telecombilling.dto.SubscriberRequest;
 import com.giorgi.telecombilling.dto.SubscriberResponse;
+import com.giorgi.telecombilling.exception.ResourceNotFoundException;
 import com.giorgi.telecombilling.model.Subscriber;
 import com.giorgi.telecombilling.model.Tariff;
 import com.giorgi.telecombilling.repository.SubscriberRepository;
@@ -22,7 +23,11 @@ public class SubscriberService {
     public SubscriberResponse createSubscriber(SubscriberRequest request) {
 
         Tariff tariff = tariffRepository.findById(request.tariffId())
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Tariff not found with id: " + request.tariffId()
+                        )
+                );
 
         Subscriber subscriber = Subscriber.builder()
                 .firstName(request.firstName())
@@ -58,7 +63,11 @@ public class SubscriberService {
 
     public SubscriberResponse getSubscriberBySubscriberId(Long subscriberId) {
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Subscriber not found with id: " + subscriberId
+                        )
+                );
 
         return new SubscriberResponse(
                 subscriber.getId(),
@@ -71,10 +80,16 @@ public class SubscriberService {
 
     public SubscriberResponse updateSubscriber(Long subscriberId, SubscriberRequest request) {
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Subscriber not found with id: " + subscriberId
+                        )
+                );
 
         Tariff tariff = tariffRepository.findById(request.tariffId())
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Tariff not found with id: " + request.tariffId())
+                );
 
         subscriber.setFirstName(request.firstName());
         subscriber.setLastName(request.lastName());
@@ -92,6 +107,14 @@ public class SubscriberService {
     }
 
     public void deleteSubscriber(Long subscriberId) {
-        subscriberRepository.deleteById(subscriberId);
+
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Subscriber not found with id: " + subscriberId
+                        )
+                );
+
+        subscriberRepository.delete(subscriber);
     }
 }

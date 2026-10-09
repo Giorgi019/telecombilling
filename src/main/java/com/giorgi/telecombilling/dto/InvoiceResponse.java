@@ -7,7 +7,6 @@ public record InvoiceResponse(
         Long subscriberId,
         String month,
         BigDecimal totalAmount,
-        int usedMinutes,
         boolean paid
 ) {
 }
